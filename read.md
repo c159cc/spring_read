@@ -153,3 +153,182 @@ AbstractXmlApplicationContext
 ```java
 	private boolean validating = true;
 ```
+
+设置资源路径
+-
+ClassPathXmlApplicationContext 构造函数内 setConfigLocations(configLocations);
+
+AbstractRefreshableConfigApplicationContext  
+```java
+	public void setConfigLocations(@Nullable String... locations) {
+		if (locations != null) {
+			Assert.noNullElements(locations, "Config locations must not be null");
+			this.configLocations = new String[locations.length];
+			for (int i = 0; i < locations.length; i++) {
+				this.configLocations[i] = resolvePath(locations[i]).trim();
+			}
+		}
+		else {
+			this.configLocations = null;
+		}
+	}
+	
+	// 替换资源占位符，比如classpath
+	protected String resolvePath(String path) {
+		return getEnvironment().resolveRequiredPlaceholders(path);
+	}
+```
+AbstractApplicationContext 获取环境，如果没有，创建一个标准环境
+```java
+	public ConfigurableEnvironment getEnvironment() {
+		if (this.environment == null) {
+			this.environment = createEnvironment();
+		}
+		return this.environment;
+	}
+	protected ConfigurableEnvironment createEnvironment() {
+		return new StandardEnvironment();
+	}
+```
+环境结构图
+![StandardEnvironment](https://github.com/c159cc/spring_read/blob/master/images/StandardEnvironment.png)
+StandardEnvironment extends AbstractEnvironment
+AbstractEnvironment  
+```java
+	// 设置日志
+	protected final Log logger = LogFactory.getLog(getClass());
+	// profile容器初始化
+	private final Set<String> activeProfiles = new LinkedHashSet<>();
+	// 设置默认的profile
+	private final Set<String> defaultProfiles = new LinkedHashSet<>(getReservedDefaultProfiles());
+	// 创建propertysource
+	private final MutablePropertySources propertySources = new MutablePropertySources();
+	// 实例化sourceProperty解析器
+	private final ConfigurablePropertyResolver propertyResolver = new PropertySourcesPropertyResolver(this.propertySources);
+	public AbstractEnvironment() {
+		customizePropertySources(this.propertySources);
+	}
+```
+
+![MutablePropertySources](https://github.com/c159cc/spring_read/blob/master/images/MutablePropertySources.png)
+MutablePropertySources
+```java
+	// 初始化sourceList
+	private final List<PropertySource<?>> propertySourceList = new CopyOnWriteArrayList<>();
+	
+```
+
+![PropertySourcesPropertyResolver](https://github.com/c159cc/spring_read/blob/master/images/PropertySourcesPropertyResolver.png)
+
+
+AbstractPropertyResolver
+```java
+	protected final Log logger = LogFactory.getLog(getClass());
+	// 嵌套的占位符默认不忽略
+	private boolean ignoreUnresolvableNestedPlaceholders = false;
+	// ${
+	private String placeholderPrefix = SystemPropertyUtils.PLACEHOLDER_PREFIX;
+	// }
+	private String placeholderSuffix = SystemPropertyUtils.PLACEHOLDER_SUFFIX;
+	// :
+	@Nullable
+	private String valueSeparator = SystemPropertyUtils.VALUE_SEPARATOR;
+
+	private final Set<String> requiredProperties = new LinkedHashSet<>();
+```
+PropertySourcesPropertyResolver
+```java
+	public PropertySourcesPropertyResolver(@Nullable PropertySources propertySources) {
+		this.propertySources = propertySources;
+	}
+```
+
+StandardEnvironment
+```java
+	protected void customizePropertySources(MutablePropertySources propertySources) {
+		propertySources.addLast(new MapPropertySource(SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME, getSystemProperties()));
+		propertySources.addLast(new SystemEnvironmentPropertySource(SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, getSystemEnvironment()));
+	}
+```
+
+![MapPropertySource](https://github.com/c159cc/spring_read/blob/master/images/MapPropertySource.png)
+MapPropertySource
+```java
+	public MapPropertySource(String name, Map<String, Object> source) {
+		super(name, source);
+	}	
+```
+
+EnumerablePropertySource
+```java
+	public EnumerablePropertySource(String name, T source) {
+		super(name, source);
+	}
+```
+PropertySource
+```java
+	protected final Log logger = LogFactory.getLog(getClass());
+
+	public PropertySource(String name, T source) {
+		Assert.hasText(name, "Property source name must contain at least one character");
+		Assert.notNull(source, "Property source must not be null");
+		this.name = name;
+		this.source = source;
+	}
+```
+SystemEnvironmentPropertySource
+![SystemEnvironmentPropertySource](https://github.com/c159cc/spring_read/blob/master/images/SystemEnvironmentPropertySource.png)
+```java
+	public SystemEnvironmentPropertySource(String name, Map<String, Object> source) {
+		super(name, source);
+	}
+```
+
+
+AbstractEnvironment
+```java
+	public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
+		return this.propertyResolver.resolveRequiredPlaceholders(text);
+	}
+```
+
+AbstractPropertyResolver
+```java
+	public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
+		if (this.strictHelper == null) {
+			this.strictHelper = createPlaceholderHelper(false);
+		}
+		return doResolvePlaceholders(text, this.strictHelper);
+	}
+	private PropertyPlaceholderHelper createPlaceholderHelper(boolean ignoreUnresolvablePlaceholders) {
+		return new PropertyPlaceholderHelper(this.placeholderPrefix, this.placeholderSuffix,
+				this.valueSeparator, ignoreUnresolvablePlaceholders);
+	}
+	private String doResolvePlaceholders(String text, PropertyPlaceholderHelper helper) {
+		return helper.replacePlaceholders(text, this::getPropertyAsRawString);
+	}
+```
+PropertyPlaceholderHelper
+```java
+	public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
+			@Nullable String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
+
+		Assert.notNull(placeholderPrefix, "'placeholderPrefix' must not be null");
+		Assert.notNull(placeholderSuffix, "'placeholderSuffix' must not be null");
+		this.placeholderPrefix = placeholderPrefix;
+		this.placeholderSuffix = placeholderSuffix;
+		String simplePrefixForSuffix = wellKnownSimplePrefixes.get(this.placeholderSuffix);
+		if (simplePrefixForSuffix != null && this.placeholderPrefix.endsWith(simplePrefixForSuffix)) {
+			this.simplePrefix = simplePrefixForSuffix;
+		}
+		else {
+			this.simplePrefix = this.placeholderPrefix;
+		}
+		this.valueSeparator = valueSeparator;
+		this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;
+	}
+	public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
+		Assert.notNull(value, "'value' must not be null");
+		return parseStringValue(value, placeholderResolver, new HashSet<>());
+	}
+```
