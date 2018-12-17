@@ -375,8 +375,36 @@ private volatile Set<String> manualSingletonNames = new LinkedHashSet<>(16);
 private volatile boolean configurationFrozen = false;
 ```
 
+AbstractRefreshableApplicationContext
+```java
+protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
+	if (this.allowBeanDefinitionOverriding != null) {
+		beanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
+	}
+	if (this.allowCircularReferences != null) {
+		beanFactory.setAllowCircularReferences(this.allowCircularReferences);
+	}
+}
+
+@Override
+protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+	// Create a new XmlBeanDefinitionReader for the given BeanFactory.
+	XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
+
+	// Configure the bean definition reader with this context's
+	// resource loading environment.
+	beanDefinitionReader.setEnvironment(this.getEnvironment());
+	beanDefinitionReader.setResourceLoader(this);
+	beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
+
+	// Allow a subclass to provide custom initialization of the reader,
+	// then proceed with actually loading the bean definitions.
+	initBeanDefinitionReader(beanDefinitionReader);
+	loadBeanDefinitions(beanDefinitionReader);
+}
 
 
+```
 
 
 
