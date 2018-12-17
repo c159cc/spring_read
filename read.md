@@ -99,6 +99,9 @@ AbstractApplicationContext 构造
 	// 当前上下文是否关闭，默认未关闭
 	private final AtomicBoolean closed = new AtomicBoolean();
 	
+	// 设置监听器
+	private final Object startupShutdownMonitor = new Object();
+	
 	// 静态指定的监听器，难道动态指定的监听器不放在这儿？
 	private final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 	
