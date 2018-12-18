@@ -82,7 +82,7 @@ public DefaultResourceLoader() {
 ```
 先执行实例字段的初始化才会执行构造函数
 
-AbstractApplicationContext 构造
+#### AbstractApplicationContext 实例化，静态字段之前已经初始化完毕
 ```java
 // 初始化日志
 protected final Log logger = LogFactory.getLog(getClass());
@@ -120,11 +120,37 @@ protected ResourcePatternResolver getResourcePatternResolver() {
 将上下文设置为默认的资源加载器  
 PathMatchingResourcePatternResolver
 ```java
+private static final Log logger = LogFactory.getLog(PathMatchingResourcePatternResolver.class);
+
+// 这里比较有意思，直接去获取FileLocator的方法，如果异常表示没有获取到
+static {
+	try {
+		// Detect Equinox OSGi (e.g. on WebSphere 6.1)
+		Class<?> fileLocatorClass = ClassUtils.forName("org.eclipse.core.runtime.FileLocator",
+				PathMatchingResourcePatternResolver.class.getClassLoader());
+		equinoxResolveMethod = fileLocatorClass.getMethod("resolve", URL.class);
+		logger.trace("Found Equinox FileLocator for OSGi bundle URL resolution");
+	}
+	catch (Throwable ex) {
+		equinoxResolveMethod = null;
+	}
+}
+
+// 上面完成了静态初始化，接下来进行实例初始化
+private PathMatcher pathMatcher = new AntPathMatcher();
+
 public PathMatchingResourcePatternResolver(ResourceLoader resourceLoader) {
 	Assert.notNull(resourceLoader, "ResourceLoader must not be null");
 	this.resourceLoader = resourceLoader;
 }
 ```
+
+<details>    
+<summary>pathMatcher = new AntPathMatcher()</summary>
+	
+#### AntPathMatcher
+
+</details> 
 
 AbstractApplicationContext构造 setParent(parent);  
 环境整合  
@@ -212,9 +238,11 @@ public AbstractEnvironment() {
 	customizePropertySources(this.propertySources);
 }
 ```
+<details>    
+<summary>new MutablePropertySources</summary>
 
+#### MutablePropertySources
 ![MutablePropertySources](https://github.com/c159cc/spring_read/blob/master/images/MutablePropertySources.png)
-MutablePropertySources
 ```java
 // 初始化sourceList
 private final List<PropertySource<?>> propertySourceList = new CopyOnWriteArrayList<>();
@@ -239,12 +267,24 @@ private String valueSeparator = SystemPropertyUtils.VALUE_SEPARATOR;
 
 private final Set<String> requiredProperties = new LinkedHashSet<>();
 ```
-PropertySourcesPropertyResolver
+
+
+[回到MutablePropertySources](#mutablepropertysources)
+</details> 
+
+
+<details>    
+<summary>new PropertySourcesPropertyResolver</summary>
+
+#### PropertySourcesPropertyResolver
 ```java
 public PropertySourcesPropertyResolver(@Nullable PropertySources propertySources) {
 	this.propertySources = propertySources;
 }
 ```
+[回到PropertySourcesPropertyResolver](#propertysourcepropertyresolver)
+</details> 
+
 
 StandardEnvironment
 ```java
@@ -254,14 +294,16 @@ protected void customizePropertySources(MutablePropertySources propertySources) 
 }
 ```
 
-![MapPropertySource](https://github.com/c159cc/spring_read/blob/master/images/MapPropertySource.png)
-MapPropertySource
+<details>    
+<summary>new MapPropertySource</summary>
+	
+![](images/MapPropertySource.png)
+#### MapPropertySource
 ```java
 public MapPropertySource(String name, Map<String, Object> source) {
 	super(name, source);
 }	
 ```
-
 EnumerablePropertySource
 ```java
 public EnumerablePropertySource(String name, T source) {
@@ -279,6 +321,14 @@ public PropertySource(String name, T source) {
 	this.source = source;
 }
 ```
+
+[回到 MapPropertySource](#mappropertysource)
+</details>
+
+
+
+
+
 SystemEnvironmentPropertySource
 ![SystemEnvironmentPropertySource](https://github.com/c159cc/spring_read/blob/master/images/SystemEnvironmentPropertySource.png)
 ```java
