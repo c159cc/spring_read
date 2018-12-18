@@ -67,8 +67,10 @@ public void refresh() throws BeansException, IllegalStateException {
   }
 }
 ```
-
-#### AbstractApplicationContext prepareRefresh
+<details>prepareRefresh    
+<summary><mark><font color=darkred>AbstractApplicationContext prepareRefresh</font></mark></summary>
+	
+#### 
 ```java
 protected void prepareRefresh() {
   this.startupDate = System.currentTimeMillis();
@@ -126,7 +128,8 @@ public void validateRequiredProperties() {
   }
 }
 ```
-
+<details>
+	
 #### AbstractApplicationContext refresh->obtainFreshBeanFactory
 ```java
 protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
