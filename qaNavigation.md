@@ -11,6 +11,11 @@ public <T> Map<Resource, T> getResourceCache(Class<T> valueType) {
 ```
 - [ ] [AntPathMatcher继承关系](read.md#antpathmatcher)
 
+- [ ] [MutablePropertySources继承关系](read.md#mutablepropertysources)
+
+- [ ] [PropertySourcesPropertyResolver继承关系](read.md#propertysourcepropertyresolver)
+
+
 - [ ]  [initPropertySources(); 初始化哪些占位符？](refresh.md#abstractapplicationcontext-preparerefresh)
 
 - [ ] Push my commits to GitHub
