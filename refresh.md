@@ -67,8 +67,8 @@ public void refresh() throws BeansException, IllegalStateException {
   }
 }
 ```
-<details>prepareRefresh    
-<summary><mark><font color=darkred>AbstractApplicationContext prepareRefresh</font></mark></summary>
+<details>    
+<summary>AbstractApplicationContext prepareRefresh</summary>
 	
 #### 
 ```java
@@ -106,6 +106,10 @@ protected void prepareRefresh() {
 }
  ```
 
+<details>    
+<summary>getEnvironment().validateRequiredProperties()</summary>
+环境类有属性解析的功能，通过组合属性解析器 AbstractPropertyResolver 实现的
+属性解析器是在AbstractRefreshableConfigApplicationContext.setConfigLocations中完成的实例化  
 
 #### AbstractEnvironment
 ```java
@@ -128,8 +132,10 @@ public void validateRequiredProperties() {
   }
 }
 ```
-<details>
-	
+</details>
+</details>
+
+
 #### AbstractApplicationContext refresh->obtainFreshBeanFactory
 ```java
 protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
