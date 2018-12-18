@@ -150,6 +150,7 @@ protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 <summary>AbstractApplicationContext refreshBeanFactory</summary>
 	
 ##### AbstractRefreshableApplicationContext.refreshBeanFactory
+AbstractApplicationContext refresh->obtainFreshBeanFactory >> AbstractRefreshableApplicationContext.refreshBeanFactory
 ```java
 protected final void refreshBeanFactory() throws BeansException {
   if (hasBeanFactory()) {
@@ -177,6 +178,7 @@ protected final boolean hasBeanFactory() {
 }
 
 // 这里新建一个DefaultListableBeanFactory, 
+// AbstractApplicationContext refresh->obtainFreshBeanFactory >> AbstractRefreshableApplicationContext.refreshBeanFactory->createBeanFactory
 protected DefaultListableBeanFactory createBeanFactory() {
   return new DefaultListableBeanFactory(getInternalParentBeanFactory());
 }
@@ -402,15 +404,9 @@ private volatile Set<String> manualSingletonNames = new LinkedHashSet<>(16);
 private volatile boolean configurationFrozen = false;
 ```
 
-[refreshBeanFactory](refresh.md#abstractrefreshableapplicationcontextrefreshbeanfactory)  
 
-</details>   
 
- [obtainFreshBeanFactory](refresh.md#abstractapplicationcontext-refresh-obtainfreshbeanfactory)  
- 
- </details>  
-
-AbstractRefreshableApplicationContext
+#### AbstractRefreshableApplicationContext customizeBeanFactory
 ```java
 protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
 	if (this.allowBeanDefinitionOverriding != null) {
@@ -420,7 +416,9 @@ protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
 		beanFactory.setAllowCircularReferences(this.allowCircularReferences);
 	}
 }
-
+```
+#### AbstractRefreshableApplicationContext loadBeanDefinitions
+```java
 @Override
 protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
 	// Create a new XmlBeanDefinitionReader for the given BeanFactory.
@@ -440,4 +438,10 @@ protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throw
 
 
 ```
+[refreshBeanFactory](refresh.md#abstractrefreshableapplicationcontextrefreshbeanfactory)  
 
+</details>   
+
+ [obtainFreshBeanFactory](refresh.md#abstractapplicationcontext-refresh-obtainfreshbeanfactory)  
+ 
+ </details>  
