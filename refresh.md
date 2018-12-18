@@ -370,10 +370,7 @@ private static final Map<Member, String[]> NO_DEBUG_INFO_MAP = Collections.empty
 // 使用map作为值（分组管理），让key更小
 private final Map<Class<?>, Map<Member, String[]>> parameterNamesCache = new ConcurrentHashMap<>(32);
 ```
-</details> 
 
-
-#### AbstractAutowireCapableBeanFactory.setParentBeanFactory
 AbstractBeanFactory
 ```java
 public void setParentBeanFactory(@Nullable BeanFactory parentBeanFactory) {
@@ -407,7 +404,7 @@ private volatile Set<String> manualSingletonNames = new LinkedHashSet<>(16);
 // 缓存metadata
 private volatile boolean configurationFrozen = false;
 ```
-
+</details> 
 
 
 #### AbstractRefreshableApplicationContext customizeBeanFactory
