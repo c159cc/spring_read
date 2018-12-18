@@ -402,9 +402,13 @@ private volatile Set<String> manualSingletonNames = new LinkedHashSet<>(16);
 private volatile boolean configurationFrozen = false;
 ```
 
+[refreshBeanFactory](refresh.md#abstractrefreshableapplicationcontextrefreshbeanfactory)  
 
-</details> refreshBeanFactory
-</details> obtainFreshBeanFactory
+</details>   
+
+ [obtainFreshBeanFactory](refresh.md#abstractapplicationcontext-refresh-obtainfreshbeanfactory)  
+ 
+ </details>  
 
 AbstractRefreshableApplicationContext
 ```java
