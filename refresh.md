@@ -337,7 +337,6 @@ private final ConcurrentMap<Class<?>, Method[]> factoryMethodCandidateCache = ne
 // 类对应的PropertyDescriptor
 private final ConcurrentMap<Class<?>, PropertyDescriptor[]> filteredPropertyDescriptorsCache = new ConcurrentHashMap<>();
 ```
-[这里](#AbstractAutowireCapableBeanFactory.setParentBeanFactory)
 
 ![CglibSubclassingInstantiationStrategy](https://github.com/c159cc/spring_read/blob/master/images/CglibSubclassingInstantiationStrategy.png)
 SimpleInstantiationStrategy
@@ -443,7 +442,7 @@ protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throw
 
 
 ```
-[refreshBeanFactory](refresh.md#abstractrefreshableapplicationcontextrefreshbeanfactory)  
+[refreshBeanFactory](refresh.md#abstractapplicationcontext-refresh-obtainfreshbeanfactory--abstractrefreshableapplicationcontextrefreshbeanfactory)  
 
 </details>   
 
