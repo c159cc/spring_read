@@ -338,13 +338,13 @@ private final ConcurrentMap<Class<?>, Method[]> factoryMethodCandidateCache = ne
 private final ConcurrentMap<Class<?>, PropertyDescriptor[]> filteredPropertyDescriptorsCache = new ConcurrentHashMap<>();
 ```
 
-![](images/CglibSubclassingInstantiationStrategy.png)
+<div align=center>![](images/CglibSubclassingInstantiationStrategy.png)  
 SimpleInstantiationStrategy
 ```java
 private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
 ```
 
-![](images/DefaultParameterNameDiscoverer.png)
+<div align=center>![](images/DefaultParameterNameDiscoverer.png)  
 PrioritizedParameterNameDiscoverer
 ```java
 private final List<ParameterNameDiscoverer> parameterNameDiscoverers = new LinkedList<>();
