@@ -70,7 +70,7 @@ public void refresh() throws BeansException, IllegalStateException {
 <details>    
 <summary>AbstractApplicationContext refresh->prepareRefresh</summary>
 	
-#### AbstractApplicationContext prepareRefresh
+#### AbstractApplicationContext refresh->prepareRefresh
 ```java
 protected void prepareRefresh() {
   this.startupDate = System.currentTimeMillis();
@@ -134,6 +134,8 @@ public void validateRequiredProperties() {
 ```
 </details>
 </details>
+
+[回到AbstractApplicationContext prepareRefresh](refresh.md#abstractapplicationcontext-preparerefresh)
 
 <details>    
 <summary>AbstractApplicationContext refresh->obtainFreshBeanFactory</summary>
