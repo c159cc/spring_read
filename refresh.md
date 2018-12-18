@@ -152,10 +152,10 @@ protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 ```
 
 <details>    
-<summary>AbstractApplicationContext refreshBeanFactory</summary>
+<summary>AbstractApplicationContext refresh->obtainFreshBeanFactory >> AbstractRefreshableApplicationContext.refreshBeanFactory</summary>
 	
 #####  AbstractApplicationContext refresh->obtainFreshBeanFactory >> AbstractRefreshableApplicationContext.refreshBeanFactory
-AbstractApplicationContext refresh->obtainFreshBeanFactory >> AbstractRefreshableApplicationContext.refreshBeanFactory
+AbstractRefreshableApplicationContext
 ```java
 protected final void refreshBeanFactory() throws BeansException {
   if (hasBeanFactory()) {
