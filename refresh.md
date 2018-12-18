@@ -192,7 +192,7 @@ protected DefaultListableBeanFactory createBeanFactory() {
 <summary>DefaultListableBeanFactory 初始化</summary>
 	
 #### DefaultListableBeanFactory 初始化
-![DefaultListableBeanFactory](https://github.com/c159cc/spring_read/blob/master/images/DefaultListableBeanFactory.png)
+!(images/DefaultListableBeanFactory.png)
 ```java
 DefaultListableBeanFactory 静态代码
 static {
@@ -338,13 +338,13 @@ private final ConcurrentMap<Class<?>, Method[]> factoryMethodCandidateCache = ne
 private final ConcurrentMap<Class<?>, PropertyDescriptor[]> filteredPropertyDescriptorsCache = new ConcurrentHashMap<>();
 ```
 
-![CglibSubclassingInstantiationStrategy](https://github.com/c159cc/spring_read/blob/master/images/CglibSubclassingInstantiationStrategy.png)
+!(images/CglibSubclassingInstantiationStrategy.png)
 SimpleInstantiationStrategy
 ```java
 private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
 ```
 
-![DefaultParameterNameDiscoverer](https://github.com/c159cc/spring_read/blob/master/images/DefaultParameterNameDiscoverer.png)
+!(images/DefaultParameterNameDiscoverer.png)
 PrioritizedParameterNameDiscoverer
 ```java
 private final List<ParameterNameDiscoverer> parameterNameDiscoverers = new LinkedList<>();
@@ -404,6 +404,8 @@ private volatile Set<String> manualSingletonNames = new LinkedHashSet<>(16);
 // 缓存metadata
 private volatile boolean configurationFrozen = false;
 ```
+
+[回到 DefaultListableBeanFactory 初始化](defaultlistablebeanfactory-%E5%88%9D%E5%A7%8B%E5%8C%96)
 </details> 
 
 
@@ -439,7 +441,7 @@ protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throw
 
 
 ```
-[refreshBeanFactory](refresh.md#abstractapplicationcontext-refresh-obtainfreshbeanfactory--abstractrefreshableapplicationcontextrefreshbeanfactory)  
+[回到refreshBeanFactory](abstractapplicationcontext-refresh-obtainfreshbeanfactory)  
 
 </details>   
 
