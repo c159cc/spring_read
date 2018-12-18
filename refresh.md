@@ -1,4 +1,4 @@
-#### AbstractApplicationContext
+#### AbstractApplicationContext refresh
 ```java
 @Override
 public void refresh() throws BeansException, IllegalStateException {
@@ -70,7 +70,7 @@ public void refresh() throws BeansException, IllegalStateException {
 <details>    
 <summary>AbstractApplicationContext prepareRefresh</summary>
 	
-#### 
+#### AbstractApplicationContext prepareRefresh
 ```java
 protected void prepareRefresh() {
   this.startupDate = System.currentTimeMillis();
@@ -135,7 +135,9 @@ public void validateRequiredProperties() {
 </details>
 </details>
 
-
+<details>    
+<summary>AbstractApplicationContext refresh->obtainFreshBeanFactory</summary>
+	
 #### AbstractApplicationContext refresh->obtainFreshBeanFactory
 ```java
 protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
@@ -144,6 +146,9 @@ protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 }
 ```
 
+<details>    
+<summary>AbstractApplicationContext refreshBeanFactory</summary>
+	
 ##### AbstractRefreshableApplicationContext.refreshBeanFactory
 ```java
 protected final void refreshBeanFactory() throws BeansException {
@@ -176,7 +181,9 @@ protected DefaultListableBeanFactory createBeanFactory() {
   return new DefaultListableBeanFactory(getInternalParentBeanFactory());
 }
 ```
-
+<details>    
+<summary>DefaultListableBeanFactory 初始化</summary>
+	
 #### DefaultListableBeanFactory 初始化
 ![DefaultListableBeanFactory](https://github.com/c159cc/spring_read/blob/master/images/DefaultListableBeanFactory.png)
 ```java
@@ -204,9 +211,9 @@ protected BeanFactory getInternalParentBeanFactory() {
 
 DefaultListableBeanFactory 
 ```java
-	public DefaultListableBeanFactory(@Nullable BeanFactory parentBeanFactory) {
-		super(parentBeanFactory);
-	}
+public DefaultListableBeanFactory(@Nullable BeanFactory parentBeanFactory) {
+	super(parentBeanFactory);
+}
 ```
 
 AbstractAutowireCapableBeanFactory
@@ -357,6 +364,8 @@ private static final Map<Member, String[]> NO_DEBUG_INFO_MAP = Collections.empty
 // 使用map作为值（分组管理），让key更小
 private final Map<Class<?>, Map<Member, String[]>> parameterNamesCache = new ConcurrentHashMap<>(32);
 ```
+</details> 
+
 
 #### AbstractAutowireCapableBeanFactory.setParentBeanFactory
 AbstractBeanFactory
@@ -393,6 +402,10 @@ private volatile Set<String> manualSingletonNames = new LinkedHashSet<>(16);
 private volatile boolean configurationFrozen = false;
 ```
 
+
+</details> refreshBeanFactory
+</details> obtainFreshBeanFactory
+
 AbstractRefreshableApplicationContext
 ```java
 protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
@@ -423,6 +436,4 @@ protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throw
 
 
 ```
-
-
 
