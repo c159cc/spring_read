@@ -9,6 +9,8 @@ public <T> Map<Resource, T> getResourceCache(Class<T> valueType) {
 // if ((val = mappingFunction.apply(key)) != null) 
 
 ```
+- [ ] [AntPathMatcher继承关系](read.md#antpathmatcher)
+
 - [ ]  [initPropertySources(); 初始化哪些占位符？](refresh.md#abstractapplicationcontext-preparerefresh)
 
 - [ ] Push my commits to GitHub
