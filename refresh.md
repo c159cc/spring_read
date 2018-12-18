@@ -68,7 +68,7 @@ public void refresh() throws BeansException, IllegalStateException {
 }
 ```
 <details>    
-<summary>AbstractApplicationContext prepareRefresh</summary>
+<summary>AbstractApplicationContext refresh->prepareRefresh</summary>
 	
 #### AbstractApplicationContext prepareRefresh
 ```java
