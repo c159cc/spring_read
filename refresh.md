@@ -133,9 +133,12 @@ public void validateRequiredProperties() {
 }
 ```
 </details>
-</details>
 
 [回到AbstractApplicationContext refresh->prepareRefresh](refresh.md#abstractapplicationcontext-refresh-preparerefresh)
+
+</details>
+
+
 
 <details>    
 <summary>AbstractApplicationContext refresh->obtainFreshBeanFactory</summary>
