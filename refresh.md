@@ -135,7 +135,7 @@ public void validateRequiredProperties() {
 </details>
 </details>
 
-[回到AbstractApplicationContext prepareRefresh](refresh.md#abstractapplicationcontext-preparerefresh)
+[回到AbstractApplicationContext refresh->prepareRefresh](refresh.md#abstractapplicationcontext-refresh-preparerefresh)
 
 <details>    
 <summary>AbstractApplicationContext refresh->obtainFreshBeanFactory</summary>
@@ -151,7 +151,7 @@ protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 <details>    
 <summary>AbstractApplicationContext refreshBeanFactory</summary>
 	
-##### AbstractRefreshableApplicationContext.refreshBeanFactory
+#####  AbstractApplicationContext refresh->obtainFreshBeanFactory >> AbstractRefreshableApplicationContext.refreshBeanFactory
 AbstractApplicationContext refresh->obtainFreshBeanFactory >> AbstractRefreshableApplicationContext.refreshBeanFactory
 ```java
 protected final void refreshBeanFactory() throws BeansException {
@@ -444,6 +444,6 @@ protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throw
 
 </details>   
 
- [obtainFreshBeanFactory](refresh.md#abstractapplicationcontext-refresh-obtainfreshbeanfactory)  
+ [回到AbstractApplicationContext refresh->obtainFreshBeanFactory](refresh.md#abstractapplicationcontext-refresh-obtainfreshbeanfactory)  
  
  </details>  
