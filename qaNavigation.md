@@ -1,3 +1,3 @@
-- [x] Finish my changes
+- [x] Finish my changes [preparerefresh](refresh.md#abstractapplicationcontext-preparerefresh)
 - [ ] Push my commits to GitHub
 - [ ] Open a pull request
