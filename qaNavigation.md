@@ -27,6 +27,12 @@ Object key2 = map.computeIfAbsent("key", k -> new Object());
 提供一个处理参数的方法，参数你来给，结果我来返回
 
 接收一个 A -> B 意味着什么？
+收到一个转换器，能对自己的某个属性进行转化
+
+这个结构的含义：一个类型对对应了多个Resource，一个Resoure对应了一个T
+
+
+
 ```
 
 - [ ] [AntPathMatcher继承关系](read.md#antpathmatcher)
@@ -34,7 +40,6 @@ Object key2 = map.computeIfAbsent("key", k -> new Object());
 - [ ] [MutablePropertySources继承关系](read.md#mutablepropertysources)
 
 - [ ] [PropertySourcesPropertyResolver继承关系](read.md#propertysourcepropertyresolver)
-
 
 - [ ]  [initPropertySources(); 初始化哪些占位符？](refresh.md#abstractapplicationcontext-preparerefresh)
 
