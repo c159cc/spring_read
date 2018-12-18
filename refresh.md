@@ -104,6 +104,7 @@ protected void prepareRefresh() {
 }
  ```
 
+
 #### AbstractEnvironment
 ```java
 public void validateRequiredProperties() throws MissingRequiredPropertiesException {
