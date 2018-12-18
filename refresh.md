@@ -1,8 +1,10 @@
 #### AbstractApplicationContext
 ```java
+@Override
 public void refresh() throws BeansException, IllegalStateException {
+	// startupShutdownMonitor 用来监视容器的刷新和销毁
   synchronized (this.startupShutdownMonitor) {
-    // Prepare this context for refreshing
+    // Prepare this context for refreshing 设置容器状态为active, 验证环境中必须的属性
     prepareRefresh();
 
     // Tell the subclass to refresh the internal bean factory.
@@ -47,6 +49,7 @@ public void refresh() throws BeansException, IllegalStateException {
       }
 
       // Destroy already created singletons to avoid dangling resources.
+			
       destroyBeans();
 
       // Reset 'active' flag.
@@ -69,6 +72,12 @@ public void refresh() throws BeansException, IllegalStateException {
 ```java
 protected void prepareRefresh() {
   this.startupDate = System.currentTimeMillis();
+	/**
+		为什么需要active和closed两个变量来控制开关？
+		如果只有一个变量，只能表达简单的是否关系，不能表达开始关闭和关闭完成2个概念
+		两个变量体现了关闭有一个过程，closed等于true的时候上下文并没有完全关闭，只代表开始关闭，
+		只有当active为false的时候才说明上下文关闭了
+	*/
   this.closed.set(false);
   this.active.set(true);
 
@@ -93,7 +102,6 @@ protected void prepareRefresh() {
   // to be published once the multicaster is available...
   this.earlyApplicationEvents = new LinkedHashSet<>();
 }
-  
  ```
 
 #### AbstractEnvironment
