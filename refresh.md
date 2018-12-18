@@ -192,7 +192,7 @@ protected DefaultListableBeanFactory createBeanFactory() {
 <summary>DefaultListableBeanFactory 初始化</summary>
 	
 #### DefaultListableBeanFactory 初始化
-!(images/DefaultListableBeanFactory.png)
+![](images/DefaultListableBeanFactory.png)
 ```java
 DefaultListableBeanFactory 静态代码
 static {
@@ -338,13 +338,13 @@ private final ConcurrentMap<Class<?>, Method[]> factoryMethodCandidateCache = ne
 private final ConcurrentMap<Class<?>, PropertyDescriptor[]> filteredPropertyDescriptorsCache = new ConcurrentHashMap<>();
 ```
 
-!(images/CglibSubclassingInstantiationStrategy.png)
+![](images/CglibSubclassingInstantiationStrategy.png)
 SimpleInstantiationStrategy
 ```java
 private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
 ```
 
-!(images/DefaultParameterNameDiscoverer.png)
+![](images/DefaultParameterNameDiscoverer.png)
 PrioritizedParameterNameDiscoverer
 ```java
 private final List<ParameterNameDiscoverer> parameterNameDiscoverers = new LinkedList<>();
