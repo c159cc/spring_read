@@ -67,9 +67,9 @@ public AbstractApplicationContext(@Nullable ApplicationContext parent) {
 this()设置资源解析器  
 因为 public abstract class AbstractApplicationContext extends DefaultResourceLoader 所以要先执行父类的构造器  
 从这里可以看出，对父类的初始化是**直接**子类触发的  
-DefaultResourceLoader  实例化  
+#### DefaultResourceLoader 实例化  
 ```java	
-//创建ProtocolResolver容器
+//创建ProtocolResolver容器 ProtocolResolver将路径解析为Resource
 private final Set<ProtocolResolver> protocolResolvers = new LinkedHashSet<>(4);
 // 创建Resource缓存
 private final Map<Class<?>, Map<Resource, ?>> resourceCaches = new ConcurrentHashMap<>(4);
