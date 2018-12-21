@@ -3,7 +3,7 @@
 AbstractApplicationContext 构造函数 getResourcePatternResolver() 获取到 PathMatchingResourcePatternResolver实例，antpathmatcher 是该实例的字段
 
 #### AntPathMatcher
-[](images/AntPathMatcher.png)
+![](images/AntPathMatcher.png)
 
 
 #### AntPathMatcher.doMatch
@@ -171,8 +171,9 @@ public static String[] tokenizeToStringArray(
 }
 ```
 
-#### StringUtils.hasMoreTokens
+#### StringTokenizer.hasMoreTokens
 ```java
+// 设置newPosition为第一个非delimiters字符，判断从当前位置开始是否还有非delimiters字符
 public boolean hasMoreTokens() {
     /*
      * Temporarily store this position and use it in the following
@@ -184,6 +185,35 @@ public boolean hasMoreTokens() {
 }
 ```
 
+#### newPosition = skipDelimiters(currentPosition);
+```java
+// 从startPos开始跳过所有的delimiter字符，返回第一个非delimiter字符
+// 原则只要字符包含在delimiters中就跳过
+private int skipDelimiters(int startPos) {
+if (delimiters == null)
+    throw new NullPointerException();
+
+int position = startPos;
+while (!retDelims && position < maxPosition) {
+    if (!hasSurrogates) {
+	char c = str.charAt(position);
+	// 关键代码，当且仅当c，包含在delimiters中才会移动position
+	// maxDelimCodePoint delimiters中最大字符的ascii码，这里采用短路或避免 indexof的性能损耗
+	// 即：如果c都大于delimiters中最大的字符了，肯定不会包含在delimiters中，直接跳出循环
+	if ((c > maxDelimCodePoint) || (delimiters.indexOf(c) < 0))
+	    break;
+	position++;
+    } else {
+	int c = str.codePointAt(position);
+	if ((c > maxDelimCodePoint) || !isDelimiter(c)) {
+	    break;
+	}
+	position += Character.charCount(c);
+    }
+}
+return position;
+}
+```
 #### StringUtils.nextToken
 ```java
 public String nextToken() {
@@ -204,12 +234,60 @@ public String nextToken() {
         throw new NoSuchElementException();
     int start = currentPosition;
     currentPosition = scanToken(currentPosition);
+    // 这里start是第一个非delimiter位置，currentPosition是第一个delimiter位置或者最大位置
+    // 返回值就是一个token
     return str.substring(start, currentPosition);
 }
 ```
 
+#### StringUtils.scanToken
+```java
+// 该方法的返回值，要么是第一个dilimiter位置，要么是最大位置
+private int scanToken(int startPos) {
+int position = startPos;
+while (position < maxPosition) {
+    if (!hasSurrogates) {
+	char c = str.charAt(position);
+	// 关键代码在第一个delimiter位置跳出
+	if ((c <= maxDelimCodePoint) && (delimiters.indexOf(c) >= 0))
+	    break;
+	position++;
+    } else {
+	int c = str.codePointAt(position);
+	if ((c <= maxDelimCodePoint) && isDelimiter(c))
+	    break;
+	position += Character.charCount(c);
+    }
+}
+if (retDelims && (startPos == position)) {
+    if (!hasSurrogates) {
+	char c = str.charAt(position);
+	if ((c <= maxDelimCodePoint) && (delimiters.indexOf(c) >= 0))
+	    position++;
+    } else {
+	int c = str.codePointAt(position);
+	if ((c <= maxDelimCodePoint) && isDelimiter(c))
+	    position += Character.charCount(c);
+    }
+}
+return position;
+}
+```
+总结：StringUtils.tokenizeToStringArray 将一个字符串按照delimiters分隔为字符串数组
+分隔逻辑为：先找到第一个不包含在delimiters中的字符，设置该字符的位置为起始位置a
+再从a开始找到第一个包含在delimiters中的字符（或者字符串结尾）,设置改位置为b
+那么[a,b)的字符串就是一个token
 
-
+```
+注意：
+因为只是判断字符是否在delimiters中，没有考虑顺序，所以
+StringUtils.tokenizeToStringArray("123ab321", "ba", false, true); 的返回值为 [123, 321]
+即ab可以分隔ba，甚至可以分隔abbbabaababababa
+123ab321 : 路径
+ba ： 分隔符
+false : 是否截取首尾空格
+true ：是否保留空字符串
+```
 
 
 
