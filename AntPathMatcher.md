@@ -1,5 +1,5 @@
 #### relationship with spring
-![here](read.md#abstractapplicationcontext-constructor)
+[here](read.md#abstractapplicationcontext-constructor)
 AbstractApplicationContext 构造函数 getResourcePatternResolver() 获取到 PathMatchingResourcePatternResolver实例，antpathmatcher 是该实例的字段
 
 #### AntPathMatcher
