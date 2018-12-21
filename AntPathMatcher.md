@@ -290,7 +290,8 @@ ba ： 分隔符
 false : 是否截取首尾空格
 true ：是否保留空字符串
 ```
-[回到 StringUtils.tokenizeToStringArray](#StringUtils.tokenizeToStringArray)
+
+[回到 StringUtils.tokenizeToStringArray](#stringutilstokenizetostringarray)
 </details>
 
 
