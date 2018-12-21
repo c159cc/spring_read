@@ -302,6 +302,7 @@ true ：是否保留空字符串
 #### isPotentialMatch
 ```java
 // 应该是粗略排除明显不匹配的
+// 全字符匹配，遇到 * ? { 时返回true!
 private boolean isPotentialMatch(String path, String[] pattDirs) {
 	if (!this.trimTokens) {
 		int pos = 0;
