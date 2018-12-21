@@ -275,7 +275,7 @@ if (retDelims && (startPos == position)) {
 return position;
 }
 ```
-总结：StringUtils.tokenizeToStringArray 将一个字符串按照delimiters分隔为字符串数组
+总结：StringUtils.tokenizeToStringArray 将一个字符串按照delimiters分隔为字符串数组  
 分隔逻辑为：先找到第一个不包含在delimiters中的字符，设置该字符的位置为起始位置a
 再从a开始找到第一个包含在delimiters中的字符（或者字符串结尾）,设置改位置为b
 那么[a,b)的字符串就是一个token
