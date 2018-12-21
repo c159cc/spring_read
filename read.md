@@ -82,6 +82,7 @@ public DefaultResourceLoader() {
 ```
 先执行实例字段的初始化才会执行构造函数
 
+#### AbstractApplicationContext constructor
 #### AbstractApplicationContext 实例化，静态字段之前已经初始化完毕
 ```java
 // 初始化日志
