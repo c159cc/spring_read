@@ -1,5 +1,5 @@
 #### relationship with spring
-[here](read.md#abstractapplicationcontext-constructor)
+[跳转到spring初始化AntPathMatcher的位置](read.md#abstractapplicationcontext-constructor)  
 AbstractApplicationContext 构造函数 getResourcePatternResolver() 获取到 PathMatchingResourcePatternResolver实例，antpathmatcher 是该实例的字段
 
 #### AntPathMatcher
@@ -139,13 +139,15 @@ protected boolean doMatch(String pattern, String path, boolean fullMatch,
 }
 ```
 
-
 #### String[] pattDirs = tokenizePattern(pattern);
 ```java
 protected String[] tokenizePath(String path) {
   return StringUtils.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
 }
 ```
+
+<details>    
+<summary>StringUtils.tokenizeToStringArray</summary>
 
 #### StringUtils.tokenizeToStringArray
 ```java
@@ -288,6 +290,10 @@ ba ： 分隔符
 false : 是否截取首尾空格
 true ：是否保留空字符串
 ```
+[回到 StringUtils.tokenizeToStringArray](#StringUtils.tokenizeToStringArray)
+</details>
+
+
 
 
 
