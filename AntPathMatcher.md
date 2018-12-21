@@ -296,6 +296,58 @@ true ：是否保留空字符串
 
 
 
+<details>    
+<summary>isPotentialMatch(path, pattDirs)</summary>
+	
+#### isPotentialMatch
+```java
+// 应该是粗略排除明显不匹配的
+private boolean isPotentialMatch(String path, String[] pattDirs) {
+	if (!this.trimTokens) {
+		int pos = 0;
+		for (String pattDir : pattDirs) {
+			int skipped = skipSeparator(path, pos, this.pathSeparator);
+			pos += skipped;
+			skipped = skipSegment(path, pos, pattDir);
+			if (skipped < pattDir.length()) {
+				return (skipped > 0 || (pattDir.length() > 0 && isWildcardChar(pattDir.charAt(0))));
+			}
+			pos += skipped;
+		}
+	}
+	return true;
+}
+
+// 跳过分隔符
+private int skipSeparator(String path, int pos, String separator) {
+	int skipped = 0;
+	while (path.startsWith(separator, pos + skipped)) {
+		skipped += separator.length();
+	}
+	return skipped;
+}
+
+// 跳过匹配的字符
+private int skipSegment(String path, int pos, String prefix) {
+	int skipped = 0;
+	for (int i = 0; i < prefix.length(); i++) {
+		char c = prefix.charAt(i);
+		if (isWildcardChar(c)) {
+			return skipped;
+		}
+		int currPos = pos + skipped;
+		if (currPos >= path.length()) {
+			return 0;
+		}
+		if (c == path.charAt(currPos)) {
+			skipped++;
+		}
+	}
+	return skipped;
+}
+```
+[回到 isPotentialMatch](#ispotentialmatch)
+</details>
 
 
 
