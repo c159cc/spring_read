@@ -350,7 +350,72 @@ private int skipSegment(String path, int pos, String prefix) {
 </details>
 
 
+<details>    
+<summary>matchStrings(pattDir, pathDirs[pathIdxStart], uriTemplateVariables)</summary>
 
+#### matchStrings
+```java
+private boolean matchStrings(String pattern, String str,
+		@Nullable Map<String, String> uriTemplateVariables) {
+
+	return getStringMatcher(pattern).matchStrings(str, uriTemplateVariables);
+}
+```
+
+```java
+// 根据 pattern创建一个matcher然后缓存起来
+protected AntPathStringMatcher getStringMatcher(String pattern) {
+	AntPathStringMatcher matcher = null;
+	Boolean cachePatterns = this.cachePatterns;
+	if (cachePatterns == null || cachePatterns.booleanValue()) {
+		matcher = this.stringMatcherCache.get(pattern);
+	}
+	if (matcher == null) {
+		matcher = new AntPathStringMatcher(pattern, this.caseSensitive);
+		if (cachePatterns == null && this.stringMatcherCache.size() >= CACHE_TURNOFF_THRESHOLD) {
+			// Try to adapt to the runtime situation that we're encountering:
+			// There are obviously too many different patterns coming in here...
+			// So let's turn off the cache since the patterns are unlikely to be reoccurring.
+			deactivatePatternCache();
+			return matcher;
+		}
+		if (cachePatterns == null || cachePatterns.booleanValue()) {
+			// 关键代码根据 pattern创建一个matcher然后缓存起来
+			this.stringMatcherCache.put(pattern, matcher);
+		}
+	}
+	return matcher;
+}
+```
+
+#### AntPathMatcher$AntPathStringMatcher
+```java
+public boolean matchStrings(String str, @Nullable Map<String, String> uriTemplateVariables) {
+		Matcher matcher = this.pattern.matcher(str);
+		if (matcher.matches()) {
+			if (uriTemplateVariables != null) {
+				// SPR-8455
+				if (this.variableNames.size() != matcher.groupCount()) {
+					throw new IllegalArgumentException("The number of capturing groups in the pattern segment " +
+							this.pattern + " does not match the number of URI template variables it defines, " +
+							"which can occur if capturing groups are used in a URI template regex. " +
+							"Use non-capturing groups instead.");
+				}
+				for (int i = 1; i <= matcher.groupCount(); i++) {
+					String name = this.variableNames.get(i - 1);
+					String value = matcher.group(i);
+					uriTemplateVariables.put(name, value);
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+```
+[回到 matchStrings](#matchstrings)
+</details>
 
 
 
