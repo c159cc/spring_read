@@ -391,29 +391,80 @@ protected AntPathStringMatcher getStringMatcher(String pattern) {
 
 #### AntPathMatcher$AntPathStringMatcher
 ```java
-public boolean matchStrings(String str, @Nullable Map<String, String> uriTemplateVariables) {
-		Matcher matcher = this.pattern.matcher(str);
-		if (matcher.matches()) {
-			if (uriTemplateVariables != null) {
-				// SPR-8455
-				if (this.variableNames.size() != matcher.groupCount()) {
-					throw new IllegalArgumentException("The number of capturing groups in the pattern segment " +
-							this.pattern + " does not match the number of URI template variables it defines, " +
-							"which can occur if capturing groups are used in a URI template regex. " +
-							"Use non-capturing groups instead.");
-				}
-				for (int i = 1; i <= matcher.groupCount(); i++) {
-					String name = this.variableNames.get(i - 1);
-					String value = matcher.group(i);
-					uriTemplateVariables.put(name, value);
-				}
+// 匹配：? , * , {a}, {{b}}, {\{} , {\}}
+// a代表非 `/{}` b代表非 `/`
+private static final Pattern GLOB_PATTERN = Pattern.compile("\\?|\\*|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+
+private static final String DEFAULT_VARIABLE_PATTERN = "(.*)";
+
+private final List<String> variableNames = new LinkedList<>();
+
+public AntPathStringMatcher(String pattern, boolean caseSensitive) {
+	StringBuilder patternBuilder = new StringBuilder();
+	Matcher matcher = GLOB_PATTERN.matcher(pattern);
+	int end = 0;
+	// matcher类有3个方法
+	// find 寻找是否有第一个匹配的序列
+	// lookingAt 从第一个位置开始寻找是否有第一个匹配的序列
+	// matches 全匹配
+	while (matcher.find()) {
+		patternBuilder.append(quote(pattern, end, matcher.start()));
+		String match = matcher.group();
+		if ("?".equals(match)) {
+			patternBuilder.append('.');
+		}
+		else if ("*".equals(match)) {
+			patternBuilder.append(".*");
+		}
+		else if (match.startsWith("{") && match.endsWith("}")) {
+			int colonIdx = match.indexOf(':');
+			if (colonIdx == -1) {
+				patternBuilder.append(DEFAULT_VARIABLE_PATTERN);
+				this.variableNames.add(matcher.group(1));
 			}
-			return true;
+			else {
+				String variablePattern = match.substring(colonIdx + 1, match.length() - 1);
+				patternBuilder.append('(');
+				patternBuilder.append(variablePattern);
+				patternBuilder.append(')');
+				String variableName = match.substring(1, colonIdx);
+				this.variableNames.add(variableName);
+			}
 		}
-		else {
-			return false;
-		}
+		end = matcher.end();
 	}
+	patternBuilder.append(quote(pattern, end, pattern.length()));
+	this.pattern = (caseSensitive ? Pattern.compile(patternBuilder.toString()) :
+			Pattern.compile(patternBuilder.toString(), Pattern.CASE_INSENSITIVE));
+}
+		
+
+```
+
+```java
+public boolean matchStrings(String str, @Nullable Map<String, String> uriTemplateVariables) {
+	Matcher matcher = this.pattern.matcher(str);
+	if (matcher.matches()) {
+		if (uriTemplateVariables != null) {
+			// SPR-8455
+			if (this.variableNames.size() != matcher.groupCount()) {
+				throw new IllegalArgumentException("The number of capturing groups in the pattern segment " +
+						this.pattern + " does not match the number of URI template variables it defines, " +
+						"which can occur if capturing groups are used in a URI template regex. " +
+						"Use non-capturing groups instead.");
+			}
+			for (int i = 1; i <= matcher.groupCount(); i++) {
+				String name = this.variableNames.get(i - 1);
+				String value = matcher.group(i);
+				uriTemplateVariables.put(name, value);
+			}
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 ```
 [回到 matchStrings](#matchstrings)
 </details>
