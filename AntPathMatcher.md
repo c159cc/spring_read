@@ -468,6 +468,7 @@ public boolean matchStrings(String str, @Nullable Map<String, String> uriTemplat
 }
 
 问题：既然最后使用正则表达式全匹配，为什么要进行antpathmatcher初始化等那么多操作？
+在正则匹配之前进行一次过滤，将明显不符合就不进行正则匹配了
 
 ```
 [回到 matchStrings](#matchstrings)
