@@ -444,6 +444,7 @@ public AntPathStringMatcher(String pattern, boolean caseSensitive) {
 ```java
 public boolean matchStrings(String str, @Nullable Map<String, String> uriTemplateVariables) {
 	Matcher matcher = this.pattern.matcher(str);
+	// 使用正则表达式全匹配
 	if (matcher.matches()) {
 		if (uriTemplateVariables != null) {
 			// SPR-8455
@@ -465,6 +466,9 @@ public boolean matchStrings(String str, @Nullable Map<String, String> uriTemplat
 		return false;
 	}
 }
+
+问题：既然最后使用正则表达式全匹配，为什么要进行antpathmatcher初始化等那么多操作？
+
 ```
 [回到 matchStrings](#matchstrings)
 </details>
