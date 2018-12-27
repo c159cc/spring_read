@@ -859,7 +859,7 @@ public void registerBeanDefinition(String beanName, BeanDefinition beanDefinitio
 						"' with an equivalent definition: replacing [" + existingDefinition +
 						"] with [" + beanDefinition + "]");
 			}
-		}
+		} 
 		this.beanDefinitionMap.put(beanName, beanDefinition);
 	} else {
 		if (hasBeanCreationStarted()) {
