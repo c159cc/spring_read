@@ -443,6 +443,456 @@ protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throw
 
 
 ```
+
+
+
+<details>    
+<summary> XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);</summary>
+	
+![](images/XmlBeanDefinitionReader.png)
+#### XmlBeanDefinitionReader
+```java
+private static final Constants constants = new Constants(XmlBeanDefinitionReader.class);
+
+private int validationMode = VALIDATION_AUTO;
+
+private boolean namespaceAware = false;
+
+private Class<? extends BeanDefinitionDocumentReader> documentReaderClass =
+			DefaultBeanDefinitionDocumentReader.class;
+
+private ProblemReporter problemReporter = new FailFastProblemReporter();
+
+private ReaderEventListener eventListener = new EmptyReaderEventListener();
+
+private SourceExtractor sourceExtractor = new NullSourceExtractor();
+
+private DocumentLoader documentLoader = new DefaultDocumentLoader();
+
+private ErrorHandler errorHandler = new SimpleSaxErrorHandler(logger);
+
+private final XmlValidationModeDetector validationModeDetector = new XmlValidationModeDetector();
+
+private final ThreadLocal<Set<EncodedResource>> resourcesCurrentlyBeingLoaded =
+		new NamedThreadLocal<>("XML bean definition resources currently being loaded");
+// 到这里XmlBeanDefinitionReader初始化完成
+
+
+public XmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
+	super(registry);
+}	
+
+```
+
+#### Constants
+工具类，用来通过名字访问指定类的public final字段
+```java
+// key:public final字段的名称  value:public final字段的值
+private final Map<String, Object> fieldCache = new HashMap<>();
+```
+
+#### AbstractBeanDefinitionReader
+```java
+protected final Log logger = LogFactory.getLog(getClass());
+
+private BeanNameGenerator beanNameGenerator = new DefaultBeanNameGenerator();
+
+protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry) {
+	Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+	this.registry = registry;
+
+	// Determine ResourceLoader to use.
+	if (this.registry instanceof ResourceLoader) {
+		this.resourceLoader = (ResourceLoader) this.registry;
+	}
+	else {
+		this.resourceLoader = new PathMatchingResourcePatternResolver();
+	}
+
+	// Inherit Environment if possible
+	if (this.registry instanceof EnvironmentCapable) {
+		this.environment = ((EnvironmentCapable) this.registry).getEnvironment();
+	}
+	else {
+		this.environment = new StandardEnvironment();
+	}
+}
+
+```
+
+
+[回到 XmlBeanDefinitionReader](#xmlbeandefinitionreader)
+</details>
+
+
+#### AbstractXmlApplicationContext loadBeanDefinitions(beanDefinitionReader);
+```java
+// 这里先从resource加载资源，再重location加载资源  分别代表什么资源？
+protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
+	Resource[] configResources = getConfigResources();
+	if (configResources != null) {
+		reader.loadBeanDefinitions(configResources);
+	}
+	String[] configLocations = getConfigLocations();
+	if (configLocations != null) {
+		reader.loadBeanDefinitions(configLocations);
+	}
+}
+```
+
+
+```java
+// AbstractBeanDefinitionReader   locations:cc/learn/beans/beans.xml
+public int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException {
+	Assert.notNull(locations, "Location array must not be null");
+	int count = 0;
+	for (String location : locations) {
+		count += loadBeanDefinitions(location);
+	}
+	return count;
+}
+
+public int loadBeanDefinitions(String location) throws BeanDefinitionStoreException {
+	return loadBeanDefinitions(location, null);
+}
+
+public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
+	ResourceLoader resourceLoader = getResourceLoader();
+	if (resourceLoader == null) {
+		throw new BeanDefinitionStoreException(
+				"Cannot load bean definitions from location [" + location + "]: no ResourceLoader available");
+	}
+
+	if (resourceLoader instanceof ResourcePatternResolver) {
+		// Resource pattern matching available.
+		try {
+			// 这里仍然会把location转化为Resource
+			Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
+			int count = loadBeanDefinitions(resources);
+			if (actualResources != null) {
+				Collections.addAll(actualResources, resources);
+			}
+			if (logger.isTraceEnabled()) {
+				logger.trace("Loaded " + count + " bean definitions from location pattern [" + location + "]");
+			}
+			return count;
+		}
+		catch (IOException ex) {
+			throw new BeanDefinitionStoreException(
+					"Could not resolve bean definition resource pattern [" + location + "]", ex);
+		}
+	}
+	else {
+		// Can only load single resources by absolute URL.
+		Resource resource = resourceLoader.getResource(location);
+		int count = loadBeanDefinitions(resource);
+		if (actualResources != null) {
+			actualResources.add(resource);
+		}
+		if (logger.isTraceEnabled()) {
+			logger.trace("Loaded " + count + " bean definitions from location [" + location + "]");
+		}
+		return count;
+	}
+}
+
+public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
+	Assert.notNull(resources, "Resource array must not be null");
+	int count = 0;
+	for (Resource resource : resources) {
+		count += loadBeanDefinitions(resource);
+	}
+	return count;
+}
+
+
+```
+
+```java
+// XmlBeanDefinitionReader
+public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
+	return loadBeanDefinitions(new EncodedResource(resource));
+}
+
+
+public int loadBeanDefinitions(EncodedResource encodedResource) throws BeanDefinitionStoreException {
+	Assert.notNull(encodedResource, "EncodedResource must not be null");
+	if (logger.isTraceEnabled()) {
+		logger.trace("Loading XML bean definitions from " + encodedResource);
+	}
+
+	Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
+	if (currentResources == null) {
+		currentResources = new HashSet<>(4);
+		this.resourcesCurrentlyBeingLoaded.set(currentResources);
+	}
+	if (!currentResources.add(encodedResource)) {
+		throw new BeanDefinitionStoreException(
+				"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
+	}
+	try {
+		InputStream inputStream = encodedResource.getResource().getInputStream();
+		try {
+			InputSource inputSource = new InputSource(inputStream);
+			if (encodedResource.getEncoding() != null) {
+				inputSource.setEncoding(encodedResource.getEncoding());
+			}
+			return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
+		}
+		finally {
+			inputStream.close();
+		}
+	}
+	catch (IOException ex) {
+		throw new BeanDefinitionStoreException(
+				"IOException parsing XML document from " + encodedResource.getResource(), ex);
+	}
+	finally {
+		currentResources.remove(encodedResource);
+		if (currentResources.isEmpty()) {
+			this.resourcesCurrentlyBeingLoaded.remove();
+		}
+	}
+}
+
+protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
+			throws BeanDefinitionStoreException {
+	try {
+		Document doc = doLoadDocument(inputSource, resource);
+		int count = registerBeanDefinitions(doc, resource);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Loaded " + count + " bean definitions from " + resource);
+		}
+		return count;
+	}catch...
+
+protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
+	return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
+			getValidationModeForResource(resource), isNamespaceAware());
+}
+
+
+```
+
+#### DefaultDocumentLoader
+```java
+public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
+		ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
+
+	DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
+	if (logger.isTraceEnabled()) {
+		logger.trace("Using JAXP provider [" + factory.getClass().getName() + "]");
+	}
+	DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
+	return builder.parse(inputSource);
+}
+
+
+```
+
+```java
+// XmlBeanDefinitionReader
+// int count = registerBeanDefinitions(doc, resource);
+public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+	BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+	int countBefore = getRegistry().getBeanDefinitionCount();
+	documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+	return getRegistry().getBeanDefinitionCount() - countBefore;
+}
+
+```
+
+#### DefaultBeanDefinitionDocumentReader
+```java
+public void registerBeanDefinitions(Document doc, XmlReaderContext readerContext) {
+	this.readerContext = readerContext;
+	doRegisterBeanDefinitions(doc.getDocumentElement());
+}
+
+protected void doRegisterBeanDefinitions(Element root) {
+	// Any nested <beans> elements will cause recursion in this method. In
+	// order to propagate and preserve <beans> default-* attributes correctly,
+	// keep track of the current (parent) delegate, which may be null. Create
+	// the new (child) delegate with a reference to the parent for fallback purposes,
+	// then ultimately reset this.delegate back to its original (parent) reference.
+	// this behavior emulates a stack of delegates without actually necessitating one.
+	BeanDefinitionParserDelegate parent = this.delegate;
+	this.delegate = createDelegate(getReaderContext(), root, parent);
+
+	if (this.delegate.isDefaultNamespace(root)) {
+		String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
+		if (StringUtils.hasText(profileSpec)) {
+			String[] specifiedProfiles = StringUtils.tokenizeToStringArray(
+					profileSpec, BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);
+			// We cannot use Profiles.of(...) since profile expressions are not supported
+			// in XML config. See SPR-12458 for details.
+			if (!getReaderContext().getEnvironment().acceptsProfiles(specifiedProfiles)) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Skipped XML bean definition file due to specified profiles [" + profileSpec +
+							"] not matching: " + getReaderContext().getResource());
+				}
+				return;
+			}
+		}
+	}
+
+	preProcessXml(root);
+	parseBeanDefinitions(root, this.delegate);
+	postProcessXml(root);
+
+	this.delegate = parent;
+}
+
+protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
+	if (delegate.isDefaultNamespace(root)) {
+		NodeList nl = root.getChildNodes();
+		for (int i = 0; i < nl.getLength(); i++) {
+			Node node = nl.item(i);
+			if (node instanceof Element) {
+				Element ele = (Element) node;
+				if (delegate.isDefaultNamespace(ele)) {
+					parseDefaultElement(ele, delegate);
+				}
+				else {
+					delegate.parseCustomElement(ele);
+				}
+			}
+		}
+	}
+	else {
+		delegate.parseCustomElement(root);
+	}
+}
+
+private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
+	if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
+		importBeanDefinitionResource(ele);
+	}
+	else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
+		processAliasRegistration(ele);
+	}
+	else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
+		processBeanDefinition(ele, delegate);
+	}
+	else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
+		// recurse
+		doRegisterBeanDefinitions(ele);
+	}
+}
+
+protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+	BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
+	if (bdHolder != null) {
+		bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
+		try {
+			// Register the final decorated instance.
+			BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
+		}
+		catch (BeanDefinitionStoreException ex) {
+			getReaderContext().error("Failed to register bean definition with name '" +
+					bdHolder.getBeanName() + "'", ele, ex);
+		}
+		// Send registration event.
+		getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
+	}
+}
+```
+
+#### BeanDefinitionReaderUtils
+```java
+public static void registerBeanDefinition(
+		BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)
+		throws BeanDefinitionStoreException {
+
+	// Register bean definition under primary name.
+	String beanName = definitionHolder.getBeanName();
+	registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
+
+	// Register aliases for bean name, if any.
+	String[] aliases = definitionHolder.getAliases();
+	if (aliases != null) {
+		for (String alias : aliases) {
+			registry.registerAlias(beanName, alias);
+		}
+	}
+}
+```
+
+
+```java
+// DefaultListableBeanFactory
+public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+			throws BeanDefinitionStoreException {
+
+	Assert.hasText(beanName, "Bean name must not be empty");
+	Assert.notNull(beanDefinition, "BeanDefinition must not be null");
+
+	if (beanDefinition instanceof AbstractBeanDefinition) {
+		try {
+			((AbstractBeanDefinition) beanDefinition).validate();
+		} catch (BeanDefinitionValidationException ex) {
+			throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
+					"Validation of bean definition failed", ex);
+		}
+	}
+
+	BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+	if (existingDefinition != null) {
+		if (!isAllowBeanDefinitionOverriding()) {
+			throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
+		} else if (existingDefinition.getRole() < beanDefinition.getRole()) {
+			// e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
+			if (logger.isInfoEnabled()) {
+				logger.info("Overriding user-defined bean definition for bean '" + beanName +
+						"' with a framework-generated bean definition: replacing [" +
+						existingDefinition + "] with [" + beanDefinition + "]");
+			}
+		} else if (!beanDefinition.equals(existingDefinition)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Overriding bean definition for bean '" + beanName +
+						"' with a different definition: replacing [" + existingDefinition +
+						"] with [" + beanDefinition + "]");
+			}
+		} else {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Overriding bean definition for bean '" + beanName +
+						"' with an equivalent definition: replacing [" + existingDefinition +
+						"] with [" + beanDefinition + "]");
+			}
+		}
+		this.beanDefinitionMap.put(beanName, beanDefinition);
+	} else {
+		if (hasBeanCreationStarted()) {
+			// Cannot modify startup-time collection elements anymore (for stable iteration)
+			synchronized (this.beanDefinitionMap) {
+				this.beanDefinitionMap.put(beanName, beanDefinition);
+				List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
+				updatedDefinitions.addAll(this.beanDefinitionNames);
+				updatedDefinitions.add(beanName);
+				this.beanDefinitionNames = updatedDefinitions;
+				if (this.manualSingletonNames.contains(beanName)) {
+					Set<String> updatedSingletons = new LinkedHashSet<>(this.manualSingletonNames);
+					updatedSingletons.remove(beanName);
+					this.manualSingletonNames = updatedSingletons;
+				}
+			}
+		} else {
+			// Still in startup registration phase
+			this.beanDefinitionMap.put(beanName, beanDefinition);
+			this.beanDefinitionNames.add(beanName);
+			this.manualSingletonNames.remove(beanName);
+		}
+		this.frozenBeanDefinitionNames = null;
+	}
+
+	if (existingDefinition != null || containsSingleton(beanName)) {
+		resetBeanDefinition(beanName);
+	}
+}
+
+
+```
+
 [回到refreshBeanFactory](abstractapplicationcontext-refresh-obtainfreshbeanfactory)  
 
 </details>   
