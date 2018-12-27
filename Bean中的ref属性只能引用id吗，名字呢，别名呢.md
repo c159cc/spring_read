@@ -14,7 +14,7 @@ public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable Be
 		// 将拆分后的名字存放到aliases中
 		aliases.addAll(Arrays.asList(nameArr));
 	}
-
+  
 	String beanName = id;
 	if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
 		// 将aliases的第一个元素设置为beanName
@@ -67,6 +67,7 @@ public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable Be
 	return null;
 }
 ```
+
 
 
 ```java
