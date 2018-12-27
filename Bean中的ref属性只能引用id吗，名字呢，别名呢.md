@@ -69,7 +69,6 @@ public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable Be
 ```
 
 
-
 ```java
 // 在已经使用过的名字中找到 aliases,如果找到其中任何一个，就报错
 protected void checkNameUniqueness(String beanName, List<String> aliases, Element beanElement) {
